@@ -53,9 +53,9 @@ class App {
           message.reply(
             `No hay ningún juego en curso. Usa -new para empezar una partida.`
           );
-        }
+        } */
 
-        if (message.content.includes("wof")) this.doingWof(message); */
+        if (message.content.includes("wof")) this.doingWof(message);
       }
     });
   }
