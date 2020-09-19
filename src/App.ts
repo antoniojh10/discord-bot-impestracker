@@ -1,4 +1,5 @@
-import { Client, Message } from "discord.js";
+import { Client, Message, User } from "discord.js";
+import channels from "./lib/channels";
 
 const devCHANNEL = "756624747537629224";
 const CHANNEL = "756645817569247312";
@@ -35,10 +36,10 @@ class App {
     });
     this.client.on("message", (message: Message) => {
       if (
-        (message.channel.id === CHANNEL || message.channel.id === devCHANNEL) &&
+        Object.values(channels).includes(message.channel.id) &&
         !message.author.bot
       ) {
-        const content = message.content.split(" ");
+        /* const content = message.content.split(" ");
         const command = content.shift();
         if (command === "-new") this.newGame(message, content);
         if (this.inLobby && !this.inGame) {
@@ -54,7 +55,7 @@ class App {
           );
         }
 
-        if (message.content.includes("wof")) this.doingWof(message);
+        if (message.content.includes("wof")) this.doingWof(message); */
       }
     });
   }
@@ -72,27 +73,27 @@ class App {
     this.players = playersList;
     console.log(message.mentions.users);
     this.players.forEach((name) => {
-      message.reply(`Se ha unido ${name?.toString()}`);
+      message.reply(`Se ha unido ${name}`);
     });
   }
 
   private printPlayers(message: Message) {
     this.players.forEach((name) => {
-      message.reply(`en la partida está ${name?.toString()}`);
+      message.reply(`en la partida está ${name}`);
     });
   }
 
   private addPlayers(message: Message, playersList: Array<string>) {
     this.players = this.players.concat(playersList);
     playersList.forEach((name) => {
-      message.reply(`Se ha unido ${name?.toString()}`);
+      message.reply(`Se ha unido ${name}`);
     });
   }
 
   private removePlayers(message: Message, playersList: Array<string>) {
     let newPlayers: Array<string> = [];
     playersList.forEach((name) => {
-      message.reply(`${name?.toString()} ha dejado la partida`);
+      message.reply(`${name} ha dejado la partida`);
       newPlayers = this.players.filter((player) => name !== player);
       this.players = newPlayers;
     });
