@@ -35,6 +35,7 @@ class App {
       console.log("Bot ready");
     });
     this.client.on("message", (message: Message) => {
+      if (message.content.includes("wof")) this.doingWof(message);
       if (
         Object.values(channels).includes(message.channel.id) &&
         !message.author.bot
@@ -54,8 +55,6 @@ class App {
             `No hay ningún juego en curso. Usa -new para empezar una partida.`
           );
         } */
-
-        if (message.content.includes("wof")) this.doingWof(message);
       }
     });
   }
