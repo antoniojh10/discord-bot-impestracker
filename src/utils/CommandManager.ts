@@ -19,7 +19,6 @@ export default class CommandManager {
       const secundaryCommand =
         messageCommands[1] &&
         this.commands.find((com) => com.id === messageCommands[1]);
-      console.log(principalCommand, secundaryCommand);
 
       return principalCommand && secundaryCommand
         ? [principalCommand, secundaryCommand]
@@ -44,26 +43,8 @@ export default class CommandManager {
       secondary
     );
 
-    if (newState?.players) {
-      let playersArray: Array<User> = [];
-      newState.players.forEach((user: User) => playersArray.push(user));
+    if (newState) {
       return newState;
     } else return;
-  }
-
-  returnPlayers(command: Command) {
-    if (
-      command.id === "!new" ||
-      command.id === "!add" ||
-      command.id === "!players" ||
-      command.id === "!left"
-    )
-      return true;
-    else return false;
-  }
-
-  returnImpostors(command: Command) {
-    if (command.id === "!impostor") return true;
-    else return false;
   }
 }

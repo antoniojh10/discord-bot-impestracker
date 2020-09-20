@@ -17,14 +17,7 @@ export default function messageController(
   const commands =
     message.content.startsWith("!") && commandManager.getCommand(message);
 
-  if (commands && commandManager.returnPlayers(commands[0])) {
-    return commandManager.executeCommand(
-      message,
-      appState,
-      commands[0],
-      commands[1]
-    );
-  } else if (commands && commandManager.returnImpostors(commands[0])) {
+  if (commands) {
     return commandManager.executeCommand(
       message,
       appState,

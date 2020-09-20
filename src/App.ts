@@ -46,8 +46,6 @@ class App {
         this.inLobby = response.inLobby;
         this.inGame = response.inGame;
       }
-      if (response && response.type === "impostors")
-        this.impostors = response.data;
     });
 
     /*
@@ -83,37 +81,7 @@ class App {
     );
   }
 
-  /* private newGame(message: Message, playersList: Array<string>) {
-    this.inLobby = true;
-    this.players = playersList;
-    console.log(message.mentions.users);
-    this.players.forEach((name) => {
-      message.reply(`Se ha unido ${name}`);
-    });
-  }
-
-  private printPlayers(message: Message) {
-    this.players.forEach((name) => {
-      message.reply(`en la partida está ${name}`);
-    });
-  }
-
-  private addPlayers(message: Message, playersList: Array<string>) {
-    this.players = this.players.concat(playersList);
-    playersList.forEach((name) => {
-      message.reply(`Se ha unido ${name}`);
-    });
-  }
-
-  private removePlayers(message: Message, playersList: Array<string>) {
-    let newPlayers: Array<string> = [];
-    playersList.forEach((name) => {
-      message.reply(`${name} ha dejado la partida`);
-      newPlayers = this.players.filter((player) => name !== player);
-      this.players = newPlayers;
-    });
-  }
-
+  /*
   private startGame(message: Message) {
     this.inGame = true;
     message.reply(`La partida comienza con ${this.players.join(", ")}`);

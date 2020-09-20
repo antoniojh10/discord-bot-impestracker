@@ -6,7 +6,7 @@ export default interface Command {
   id: string;
   description: string;
   execute(
-    dispacher: Dispatcher,
+    dispatcher: Dispatcher,
     appState: AppState,
     message: Message,
     secondary: Command | undefined
