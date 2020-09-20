@@ -34,6 +34,7 @@ class App {
   initialize() {
     this.client.on("ready", () => console.log("Bot ready"));
     this.client.on("message", (message) => {
+      if (message.content.includes("wof")) this.doingWof(message);
       const response = messageController(message, {
         players: this.players,
         impostors: this.impostors,
@@ -47,46 +48,17 @@ class App {
         this.inGame = response.inGame;
       }
     });
-
-    /*
-    this.client.on("message", (message: Message) => {
-      if (
-        Object.values(channels).includes(message.channel.id) &&
-        !message.author.bot
-      ) {
-        if (message.content.includes("wof")) this.doingWof(message);
-        const content = message.content.split(" ");
-        const command = content.shift();
-        if (command === "-new") this.newGame(message, content);
-        if (this.inLobby && !this.inGame) {
-          if (command === "-players") this.printPlayers(message);
-          if (command === "-add") this.addPlayers(message, content);
-          if (command === "-left") this.removePlayers(message, content);
-          if (command === "-start") this.startGame(message);
-        } else if (this.inLobby && this.inGame) {
-          if (command === "-impostor") this.setImpostor(message, content);
-        } else {
-          message.reply(
-            `No hay ningún juego en curso. Usa -new para empezar una partida.`
-          );
-        }} 
-    });*/
   }
 
   private doingWof(message: Message) {
     const weakwow = this.client.emojis.cache.get("756633522407604224");
     if (weakwow) message.react(weakwow);
     message.reply(
-      `estoy en desarrollo, aún no hago nada ${weakwow?.toString()}`
+      `soy un bot para llevar las estadísticas del juego, pero aún no lo hago pues ${weakwow?.toString()}`
     );
   }
 
   /*
-  private startGame(message: Message) {
-    this.inGame = true;
-    message.reply(`La partida comienza con ${this.players.join(", ")}`);
-  }
-
   private setImpostor(message: Message, impostorList: Array<string>) {
     if (impostorList[0] === "-atrapado") {
       impostorList.shift();
