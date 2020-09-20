@@ -1,4 +1,5 @@
 import { Client, Message, User } from "discord.js";
+import messageController from "./controllers/messageController";
 import channels from "./lib/channels";
 
 const devCHANNEL = "756624747537629224";
@@ -9,8 +10,8 @@ class App {
   private token: string;
   private inLobby: boolean = false;
   private inGame: boolean = false;
-  private players: Array<string> = [];
-  private impostors: Array<string> = [];
+  private players: Array<User> = [];
+  private impostors: Array<User> = [];
   private classicImpostors = [
     "@AntonioJH",
     "@Daniellb_",
@@ -31,16 +32,32 @@ class App {
   }
 
   initialize() {
-    this.client.on("ready", () => {
-      console.log("Bot ready");
+    this.client.on("ready", () => console.log("Bot ready"));
+    this.client.on("message", (message) => {
+      const response = messageController(message, {
+        players: this.players,
+        impostors: this.impostors,
+        inLobby: this.inLobby,
+        inGame: this.inGame
+      });
+      if (response) {
+        this.players = response.players;
+        this.impostors = response.impostors;
+        this.inLobby = response.inLobby;
+        this.inGame = response.inGame;
+      }
+      if (response && response.type === "impostors")
+        this.impostors = response.data;
     });
+
+    /*
     this.client.on("message", (message: Message) => {
-      if (message.content.includes("wof")) this.doingWof(message);
       if (
         Object.values(channels).includes(message.channel.id) &&
         !message.author.bot
       ) {
-        /* const content = message.content.split(" ");
+        if (message.content.includes("wof")) this.doingWof(message);
+        const content = message.content.split(" ");
         const command = content.shift();
         if (command === "-new") this.newGame(message, content);
         if (this.inLobby && !this.inGame) {
@@ -54,9 +71,8 @@ class App {
           message.reply(
             `No hay ningún juego en curso. Usa -new para empezar una partida.`
           );
-        } */
-      }
-    });
+        }} 
+    });*/
   }
 
   private doingWof(message: Message) {
@@ -67,7 +83,7 @@ class App {
     );
   }
 
-  private newGame(message: Message, playersList: Array<string>) {
+  /* private newGame(message: Message, playersList: Array<string>) {
     this.inLobby = true;
     this.players = playersList;
     console.log(message.mentions.users);
@@ -185,7 +201,7 @@ class App {
       message.channel.send(
         `Mírenlo, jugando con la mente de la gente otra vez ${impostor}`
       );
-  }
+  } */
 }
 
 export default App;
