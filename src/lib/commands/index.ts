@@ -1,13 +1,16 @@
 import Command from "../../models/Command";
 import AppState from "../../models/AppState";
-import { Message } from "discord.js";
+import { Message, MessageEmbed, EmbedFieldData } from "discord.js";
 import GameDispatcher from "../../dispatchers/GameDispatcher";
+import ImpostorDispatcher from "../../dispatchers/ImpostorDispatcher";
+import { getEmojiById } from "../../utils/DiscordUtils";
+import emojis from "../emojis";
 
 const commands: Command[] = [
   {
     id: "!new",
     description:
-      "Comienza una nueva sesión de Among Us con los usuarios en la sala",
+      "Comienza una nueva sesión de Among Us con los usuarios mencionados",
     execute(dispatcher: GameDispatcher, appState: AppState, message: Message) {
       if (!appState.inLobby) {
         return {
@@ -85,11 +88,7 @@ const commands: Command[] = [
       "Termina la partida, abre la sala para agregar o quitar jugadores",
     execute(dispatcher: GameDispatcher, appState: AppState, message: Message) {
       if (appState.inLobby && appState.inGame) {
-        message.channel.send("Partida terminada");
-        return {
-          ...appState,
-          inGame: false
-        };
+        return dispatcher.finishGame(message, appState);
       } else if (appState.inLobby && !appState.inGame) {
         message.channel.send("La partida no ha comenzado");
       } else if (!appState.inLobby) {
@@ -99,21 +98,86 @@ const commands: Command[] = [
   },
   {
     id: "!impostor",
-    description: "Comando para guardar quien es el impostor",
+    description:
+      "(seguido de !win o !catch) Comando para guardar quien es el impostor",
     execute(
-      dispatcher: GameDispatcher,
+      dispatcher: ImpostorDispatcher,
       appState: AppState,
       message: Message,
       secondary: Command
     ) {
-      const weakwow = message.client.emojis.cache.get("756633522407604224");
-      message.channel.send(
-        `Estoy en desarrollo, este comando aún no hace nada ${weakwow?.toString()}`
-      );
+      if (appState.inLobby && appState.inGame) {
+        if (dispatcher.validateImpostor(message, appState) && secondary) {
+          secondary.execute(dispatcher, appState, message, undefined);
+          return dispatcher.saveImpostor(message, appState);
+        } else if (!secondary) {
+          message.channel.send(
+            "Error en el segundo comando, escribe !win o !catch"
+          );
+        } else {
+          message.channel.send("Este jugador no está en la lista");
+        }
+      } else if (appState.inLobby && !appState.inGame) {
+        message.channel.send("La partida no ha comenzado");
+      } else if (!appState.inLobby) {
+        message.channel.send("No hay partida que terminar");
+      }
+    }
+  },
+  {
+    id: "!catch",
+    description:
+      "(junto con !impostor)  Imprime el mensaje para el pésimo impostor",
+    execute(
+      dispatcher: ImpostorDispatcher,
+      appState: AppState,
+      message: Message
+    ) {
+      dispatcher.impostorCatch(message);
+    }
+  },
+  {
+    id: "!win",
+    description:
+      "(junto con !impostor) Imprime el mensaje para el impostor ganador",
+    execute(
+      dispatcher: ImpostorDispatcher,
+      appState: AppState,
+      message: Message
+    ) {
+      dispatcher.impostorWon(message);
+    }
+  },
+  {
+    id: "!help",
+    description: "Lista los comandos y su descripción",
+    execute(
+      dispatcher: ImpostorDispatcher,
+      appState: AppState,
+      message: Message
+    ) {
+      const weakwow = getEmojiById(message, emojis.weakdog);
+      let commandsObject: EmbedFieldData[] = [];
+      commands.forEach((com) => {
+        const miniObject = { name: com.id, value: com.description };
+        commandsObject.push(miniObject);
+      });
+      commandsObject.push({
+        name: "Changelog",
+        value: `20/09/2020: *Todavía no almaceno en base de datos* ${weakwow?.toString()}`
+      });
+
+      const helpEmbed = new MessageEmbed()
+        .setColor("#faa61a")
+        .setTitle("INSTRUCCIONES DE USO")
+        .addFields(commandsObject);
+
+      message.channel.send(helpEmbed);
+      /* commands.forEach((com) => {
+        message.channel.send(`**${com.id}**: ${com.description}`);
+      }); */
     }
   }
-  // !impostor
-  // !impostor
 ];
 
 export default commands;

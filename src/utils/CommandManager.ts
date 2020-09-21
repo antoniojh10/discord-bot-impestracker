@@ -3,6 +3,7 @@ import AppState from "../models/AppState";
 import Command from "../models/Command";
 import commands from "../lib/commands";
 import GameDispatcher from "../dispatchers/GameDispatcher";
+import ImpostorDispatcher from "../dispatchers/ImpostorDispatcher";
 
 export default class CommandManager {
   private commands: Command[] = commands;
@@ -36,12 +37,15 @@ export default class CommandManager {
     command: Command,
     secondary: Command
   ): AppState | undefined {
-    const newState: AppState = command.execute(
-      new GameDispatcher(),
-      appState,
-      message,
-      secondary
-    );
+    const newState: AppState =
+      command.id === "!impostor"
+        ? command.execute(
+            new ImpostorDispatcher(),
+            appState,
+            message,
+            secondary
+          )
+        : command.execute(new GameDispatcher(), appState, message, secondary);
 
     if (newState) {
       return newState;

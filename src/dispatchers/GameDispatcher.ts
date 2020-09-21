@@ -1,4 +1,5 @@
 import { Message, User } from "discord.js";
+import AppState from "../models/AppState";
 import Dispatcher from "./Dispatcher";
 
 export default class GameDispatcher extends Dispatcher {
@@ -19,7 +20,6 @@ export default class GameDispatcher extends Dispatcher {
 
   printPlayers(message: Message, players: User[]) {
     let actualPlayers: string[] = [];
-    console.log(players);
     players.forEach((player) => {
       actualPlayers.push(`<@${player}>`);
     });
@@ -55,6 +55,25 @@ export default class GameDispatcher extends Dispatcher {
       console.log(error);
     }
   }
-  //start
-  //finish
+
+  finishGame(message: Message, appState: AppState) {
+    message.channel.send("Partida terminada");
+    let actualPlayers: string[] = [];
+    let actualImpostors: string[] = [];
+    appState.players.forEach((player) => {
+      actualPlayers.push(`<@${player}>`);
+    });
+    appState.impostors.forEach((impostor) => {
+      actualImpostors.push(`<@${impostor}>`);
+    });
+    message.channel.send(
+      `Los impostores fueron: ${actualImpostors.join(", ")}.`
+    );
+    message.channel.send(`Los jugadores fueron: ${actualPlayers.join(", ")}.`);
+    return {
+      ...appState,
+      impostors: [],
+      inGame: false
+    };
+  }
 }
