@@ -86,9 +86,24 @@ const commands: Command[] = [
     id: "!finish",
     description:
       "Termina la partida, abre la sala para agregar o quitar jugadores",
-    execute(dispatcher: GameDispatcher, appState: AppState, message: Message) {
-      if (appState.inLobby && appState.inGame) {
-        return dispatcher.finishGame(message, appState);
+    execute(
+      dispatcher: GameDispatcher,
+      appState: AppState,
+      message: Message,
+      secondary: Command
+    ) {
+      const validator = secondary && secondary.id ? true : false;
+      if (
+        appState.inLobby &&
+        appState.inGame &&
+        validator &&
+        (secondary.id === "!impostor" || secondary.id === "!players")
+      ) {
+        return dispatcher.finishGame(message, appState, secondary.id);
+      } else if (appState.inLobby && appState.inGame && !validator) {
+        message.channel.send(
+          "El comando secundario debe ser !impostor o !players"
+        );
       } else if (appState.inLobby && !appState.inGame) {
         message.channel.send("La partida no ha comenzado");
       } else if (!appState.inLobby) {

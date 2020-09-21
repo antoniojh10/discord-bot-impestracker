@@ -1,4 +1,4 @@
-import { Message, User } from "discord.js";
+import { Message, User, MessageEmbed, EmbedFieldData } from "discord.js";
 import AppState from "../models/AppState";
 import Dispatcher from "./Dispatcher";
 
@@ -56,20 +56,43 @@ export default class GameDispatcher extends Dispatcher {
     }
   }
 
-  finishGame(message: Message, appState: AppState) {
+  finishGame(message: Message, appState: AppState, winners: string) {
     message.channel.send("Partida terminada");
     let actualPlayers: string[] = [];
     let actualImpostors: string[] = [];
     appState.players.forEach((player) => {
-      actualPlayers.push(`<@${player}>`);
+      if (!appState.impostors.includes(player))
+        actualPlayers.push(`<@${player}>`);
     });
     appState.impostors.forEach((impostor) => {
       actualImpostors.push(`<@${impostor}>`);
     });
-    message.channel.send(
-      `Los impostores fueron: ${actualImpostors.join(", ")}.`
-    );
-    message.channel.send(`Los jugadores fueron: ${actualPlayers.join(", ")}.`);
+
+    let color, resultMessage, resultTitle;
+
+    if (winners === "!impostor") {
+      color = "#f04747";
+      resultTitle = "GANARON LOS IMPOSTORES";
+      resultMessage = "Triunfó el mal";
+    } else {
+      color = "#43b581";
+      resultTitle = "GANARON LOS TRIPULANTES";
+      resultMessage = "Salvamos la nave";
+    }
+
+    let resultsObject: EmbedFieldData[] = [
+      { name: "TRIPULANTES", value: `${actualPlayers.join(", ")}.` },
+      { name: "IMPOSTORES", value: `${actualImpostors.join(", ")}.` },
+      { name: `${resultTitle}`, value: `${resultMessage}` }
+    ];
+
+    const resultEmbed = new MessageEmbed()
+      .setColor(color)
+      .setTitle("RESULTADO DE LA PARTIDA")
+      .addFields(resultsObject);
+
+    message.channel.send(resultEmbed);
+
     return {
       ...appState,
       impostors: [],
